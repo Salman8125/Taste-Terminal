@@ -2,6 +2,8 @@ import { NextFunction, Request, Response } from "express";
 import { VendorUpdateProfileInput, loginVendorInput } from "../types/vendor-type";
 import { Vendor } from "../models/vendor-modal";
 import { GenerateSignature, ValidatePassword } from "../utility/encrypt-data";
+import { AddfoodsInput } from "../types/food-types";
+import { Food } from "../models/food-modal";
 
 export const login = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -47,6 +49,35 @@ export const getVendorProfile = async (req: Request, res: Response, next: NextFu
     return res.status(200).json(vendor);
   } catch (error) {
     console.log("GET_PROFILE_VENDOR", error);
+    return res.status(500).json("Internal Server error");
+  }
+};
+
+export const updateVendorCoverImage = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const user = req.user;
+
+    if (!user) {
+      return res.status(400).json("Un Authorised");
+    }
+
+    const files = req.files as [Express.Multer.File];
+
+    const vendor = await Vendor.findById(user._id);
+
+    if (!vendor) {
+      return res.status(400).json("Vendor Not Found");
+    }
+
+    const images = files.map((file: Express.Multer.File) => file.filename);
+
+    vendor.coverImages.push(...images);
+
+    const savedResult = await vendor.save();
+
+    return res.status(200).json(savedResult);
+  } catch (error) {
+    console.log("PATCH_PROFILE__VENDOR", error);
     return res.status(500).json("Internal Server error");
   }
 };
@@ -104,6 +135,74 @@ export const updateVendorService = async (req: Request, res: Response, next: Nex
     const savedVendor = await existingVendor.save();
 
     res.status(200).json(savedVendor);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json("Internal Server error");
+  }
+};
+
+export const Addfood = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { vendorId, name, description, category, price, readyTime, foodType } = <AddfoodsInput>req.body;
+
+    if (!vendorId || !name || !description || !category || !price || !readyTime || !foodType) {
+      return res.status(400).json("Missing Fields");
+    }
+
+    const user = req.user;
+
+    if (!user) {
+      return res.status(400).json("Un Authorised");
+    }
+
+    const vendor = await Vendor.findById(user._id);
+
+    if (!vendor) {
+      return res.status(400).json("Vendor Info Not Found");
+    }
+
+    const files = req.files as [Express.Multer.File];
+
+    const images = files.map((file: Express.Multer.File) => file.filename);
+
+    const createdFood = await Food.create({
+      vendorId,
+      name,
+      description,
+      category,
+      price,
+      readyTime,
+      foodType,
+      rating: 0,
+      images: images,
+    });
+
+    vendor.foods.push(createdFood);
+
+    const result = await vendor.save();
+
+    return res.status(200).json(result);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json("Internal Server error");
+  }
+};
+
+export const getFoods = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const user = req.user;
+
+    if (!user) {
+      return res.status(400).json("Un Authorised");
+    }
+
+    const foods = await Food.find({ vendorId: user._id });
+
+    if (!foods) {
+      return res.status(400).json("Foods Info Not Found");
+    }
+
+    return res.status(200).json(foods);
   } catch (error) {
     console.log(error);
     return res.status(500).json("Internal Server error");

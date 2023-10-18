@@ -1,6 +1,7 @@
 import express from "express";
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
+import path from "path";
 
 import { adminRouter } from "./routes/admin-routes";
 import { vendorRouter } from "./routes/vendor-routes";
@@ -12,6 +13,7 @@ const app = express();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use("/images", express.static(path.join(__dirname, "images")));
 
 connect();
 

@@ -13,7 +13,7 @@ export const GeneratePassword = async (password: any, salt: any) => {
 };
 
 export const GenerateSignature = async (payload: VendorSignaturePayload, secret: string) => {
-  return await jwt.sign(payload, secret, { expiresIn: "1h" });
+  return await jwt.sign(payload, secret, { expiresIn: "1d" });
 };
 
 export const VerifySignature = async (req: Request) => {
