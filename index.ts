@@ -1,30 +1,22 @@
 import express from "express";
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
-import path from "path";
-
-import { adminRouter } from "./routes/admin-routes";
-import { vendorRouter } from "./routes/vendor-routes";
-import { connect } from "./config/db-connection";
+import { expressApp } from "./services/express-app";
+import { connect } from "./services/db-connection";
 
 dotenv.config();
 
-const app = express();
+const StartServer = async () => {
+  const app = express();
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use("/images", express.static(path.join(__dirname, "images")));
+  await connect();
 
-connect();
+  await expressApp(app);
 
-app.use("/admin", adminRouter);
-app.use("/vendor", vendorRouter);
+  app.listen(8080, () => {
+    console.clear();
+    console.log("App is running");
+  });
+};
 
-app.use("/", (req, res) => {
-  res.json("Listing to Server");
-});
-
-app.listen(8080, () => {
-  console.clear();
-  console.log("App is running");
-});
+StartServer();
