@@ -7,7 +7,7 @@ import { AuthPayload } from "../types/auth-type";
 export const GenerateSalt = async () => {
   return await bcrypt.genSaltSync(10);
 };
-
+ 
 export const GeneratePassword = async (password: any, salt: any) => {
   return await bcrypt.hashSync(password, salt);
 };
