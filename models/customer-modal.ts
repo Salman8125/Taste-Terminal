@@ -1,19 +1,24 @@
 import mongoose, { Document, Schema } from "mongoose";
 
 interface customerInterface extends Document {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   address: string;
   phone: string;
+  verified: boolean;
   password: string;
   salt: string;
-  otp: string;
+  otp: number;
   otp_expiry: Date;
+  lat: number;
+  lng: number;
 }
 
 const customerSchema = new Schema(
   {
-    name: { type: String, required: true },
+    firstName: { type: String },
+    lastName: { type: String },
     email: {
       type: String,
       required: true,
@@ -26,11 +31,13 @@ const customerSchema = new Schema(
       },
     },
     address: { type: String },
-    phone: { type: String },
+    phone: { type: String, required: true },
     password: { type: String, required: true },
     salt: { type: String, required: true },
-    otp: { type: String },
-    otp_expiry: { type: String },
+    otp: { type: Number },
+    otp_expiry: { type: Date },
+    lat: { type: Number, required: true },
+    lng: { type: Number, required: true },
   },
   {
     timestamps: true,
@@ -45,3 +52,7 @@ const customerSchema = new Schema(
     },
   }
 );
+
+const Customer = mongoose.model("customer", customerSchema);
+
+export { Customer };
