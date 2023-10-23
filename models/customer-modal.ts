@@ -5,7 +5,7 @@ interface customerInterface extends Document {
   lastName: string;
   email: string;
   address: string;
-  phone: string;
+  phone: number;
   verified: boolean;
   password: string;
   salt: string;
@@ -31,13 +31,14 @@ const customerSchema = new Schema(
       },
     },
     address: { type: String },
-    phone: { type: String, required: true },
+    phone: { type: Number, required: true },
     password: { type: String, required: true },
     salt: { type: String, required: true },
     otp: { type: Number },
-    otp_expiry: { type: Date },
-    lat: { type: Number, required: true },
-    lng: { type: Number, required: true },
+    otp_expiry: { type: Date, default: new Date() },
+    verified: { type: Boolean },
+    lat: { type: Number },
+    lng: { type: Number },
   },
   {
     timestamps: true,
@@ -48,6 +49,8 @@ const customerSchema = new Schema(
         delete ret.updatedAt;
         delete ret.password;
         delete ret.salt;
+        delete ret.otp;
+        delete ret.otp_expiry;
       },
     },
   }

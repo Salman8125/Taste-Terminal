@@ -10,7 +10,7 @@ customerRouter.post("/login", CustomerLogin);
 customerRouter.use(Authenticate);
 
 customerRouter.patch("/verify", CustomerVerification);
-customerRouter.post("/otp", getOtp);
+customerRouter.patch("/otp", getOtp);
 customerRouter.get("/profile", CustomerProfile);
 customerRouter.patch("/update-profile", UpdateCustomerProfile);
 

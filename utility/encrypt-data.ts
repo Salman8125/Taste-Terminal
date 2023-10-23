@@ -7,12 +7,12 @@ import { AuthPayload } from "../types/auth-type";
 export const GenerateSalt = async () => {
   return await bcrypt.genSaltSync(10);
 };
- 
+
 export const GeneratePassword = async (password: any, salt: any) => {
   return await bcrypt.hashSync(password, salt);
 };
 
-export const GenerateSignature = async (payload: VendorSignaturePayload, secret: string) => {
+export const GenerateSignature = async (payload: AuthPayload, secret: string) => {
   return await jwt.sign(payload, secret, { expiresIn: "1d" });
 };
 
@@ -22,9 +22,6 @@ export const VerifySignature = async (req: Request) => {
   if (token) {
     try {
       const payload = (await jwt.verify(token.split(" ")[1], process.env.JWT_SECRET!)) as AuthPayload;
-      if (!payload._id || !payload.name || !payload.email || !payload.foodType) {
-        return false;
-      }
       req.user = payload;
       return true;
     } catch (error) {
