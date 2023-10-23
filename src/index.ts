@@ -1,5 +1,4 @@
 import express from "express";
-import bodyParser from "body-parser";
 import dotenv from "dotenv";
 import { expressApp } from "./services/express-app";
 import { connect } from "./services/db-connection";
@@ -13,7 +12,7 @@ const StartServer = async () => {
 
   await expressApp(app);
 
-  app.listen(8080, () => {
+  app.listen(process.env.PORT!, () => {
     console.clear();
     console.log("App is running");
   });
