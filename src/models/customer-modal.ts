@@ -14,6 +14,7 @@ interface customerInterface extends Document {
   lat: number;
   lng: number;
   orders: [any];
+  cart: [any];
 }
 
 const customerSchema = new Schema(
@@ -44,6 +45,12 @@ const customerSchema = new Schema(
       {
         type: Schema.Types.ObjectId,
         ref: "order",
+      },
+    ],
+    cart: [
+      {
+        food: { type: Schema.Types.ObjectId, ref: "food", required: true },
+        unit: { type: Number, required: true },
       },
     ],
   },

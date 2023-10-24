@@ -1,6 +1,19 @@
 import express from "express";
 import { Authenticate } from "../middlewares/common-auth";
-import { CreateOrder, CustomerLogin, CustomerProfile, CustomerSignUp, CustomerVerification, GetOrderById, GetOrders, UpdateCustomerProfile, getOtp } from "../controllers/customer-controller";
+import {
+  AddItemsToCart,
+  CreateOrder,
+  CustomerLogin,
+  CustomerProfile,
+  CustomerSignUp,
+  CustomerVerification,
+  DeleteItemsFromCart,
+  GetItemsFormCart,
+  GetOrderById,
+  GetOrders,
+  UpdateCustomerProfile,
+  getOtp,
+} from "../controllers/customer-controller";
 
 const customerRouter = express.Router();
 
@@ -17,5 +30,9 @@ customerRouter.patch("/update-profile", UpdateCustomerProfile);
 customerRouter.post("/create-order", CreateOrder);
 customerRouter.get("/orders", GetOrders);
 customerRouter.get("/order/:id", GetOrderById);
+
+customerRouter.post("/cart-additem", AddItemsToCart);
+customerRouter.get("/cart-getitem", GetItemsFormCart);
+customerRouter.delete("/cart-deleteitem", DeleteItemsFromCart);
 
 export { customerRouter };
