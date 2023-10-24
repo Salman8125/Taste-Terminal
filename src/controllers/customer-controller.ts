@@ -1,8 +1,10 @@
 import { NextFunction, Request, Response } from "express";
-import { CreateCustomerInput, CustomerLoginInputs, UpdateCustomerInputs } from "../types/customer-types";
+import { CartInputs, CreateCustomerInput, CustomerLoginInputs, UpdateCustomerInputs } from "../types/customer-types";
 import { Customer } from "../models/customer-modal";
 import { GeneratePassword, GenerateSalt, GenerateSignature, ValidatePassword } from "../utility/encrypt-data";
 import { GenerateOtp, onRequestOTP } from "../utility/notification-utility";
+import { Order } from "../models/order-modal";
+import { Food } from "../models/food-modal";
 
 export const CustomerSignUp = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -36,6 +38,7 @@ export const CustomerSignUp = async (req: Request, res: Response, next: NextFunc
       salt: salt,
       lat: 0,
       lng: 0,
+      orders: [],
     });
 
     if (!result) {
@@ -217,6 +220,123 @@ export const UpdateCustomerProfile = async (req: Request, res: Response, next: N
     await profile.save();
 
     return res.status(200).json(profile);
+  } catch (error) {
+    console.log(error);
+    return res.status(200).json("Internal Server Error");
+  }
+};
+
+export const CreateOrder = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const user = req.user;
+
+    if (!user) {
+      return res.status(400).json("Un Authorized");
+    }
+
+    const customer = await Customer.findById(user._id);
+
+    if (!customer) {
+      return res.status(400).json("Un Authorized");
+    }
+
+    const cart = <CartInputs[]>req.body;
+
+    if (!cart || cart.length === 0) {
+      return res.status(400).json("Missing Inputs");
+    }
+
+    let totalPrice = 0.0;
+    const cartItems = Array();
+
+    const foods = await Food.find()
+      .where("_id")
+      .in(cart.map((item) => item._id))
+      .exec();
+
+    if (!foods || foods.length === 0) {
+      return res.status(400).json("Foods Not Found");
+    }
+
+    foods.map((food) => {
+      cart.map(({ _id, unit }) => {
+        if (food._id == _id) {
+          totalPrice = totalPrice + food.price * unit;
+          cartItems.push({ food, unit });
+        }
+      });
+    });
+
+    if (!cartItems || cartItems.length === 0) {
+      return res.status(400).json("Cart items missing");
+    }
+
+    const currentOrder = await Order.create({
+      totalPrice: totalPrice,
+      items: cartItems,
+      orderDate: new Date(),
+      paidThrough: "COD",
+      paymentResponse: "",
+      orderStatus: "pending",
+      verified: false,
+    });
+
+    if (currentOrder) {
+      customer.orders.push(currentOrder);
+      await customer.save();
+
+      return res.status(200).json(currentOrder);
+    }
+
+    return res.status(400).json("Some Thing Went Wrong");
+  } catch (error) {
+    console.log(error);
+    return res.status(200).json("Internal Server Error");
+  }
+};
+
+export const GetOrders = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const user = req.user;
+
+    if (!user) {
+      return res.status(400).json("Un Authorized");
+    }
+
+    const customer = await Customer.findById(user._id).populate("orders");
+
+    if (!customer) {
+      return res.status(400).json("No Data Found Of This User");
+    }
+
+    return res.status(200).json(customer);
+  } catch (error) {
+    console.log(error);
+    return res.status(200).json("Internal Server Error");
+  }
+};
+
+export const GetOrderById = async (req: Request, res: Response, next: NextFunction) => {
+  try { 
+    const user = req.user;
+
+    if (!user) {
+      return res.status(400).json("Un Authorized");
+    }
+
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(200).json("Order Id is Required");
+    }
+
+    const order = await Order.findById(id);
+
+    if (!order) {
+      return res.status(200).json("Order Not Found");
+    }
+
+    return res.status(200).json(order);
   } catch (error) {
     console.log(error);
     return res.status(200).json("Internal Server Error");

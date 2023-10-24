@@ -13,6 +13,7 @@ interface customerInterface extends Document {
   otp_expiry: Date;
   lat: number;
   lng: number;
+  orders: [any];
 }
 
 const customerSchema = new Schema(
@@ -39,6 +40,12 @@ const customerSchema = new Schema(
     verified: { type: Boolean },
     lat: { type: Number },
     lng: { type: Number },
+    orders: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "order",
+      },
+    ],
   },
   {
     timestamps: true,
@@ -56,6 +63,6 @@ const customerSchema = new Schema(
   }
 );
 
-const Customer = mongoose.model("customer", customerSchema);
+const Customer = mongoose.model<customerInterface>("customer", customerSchema);
 
 export { Customer };

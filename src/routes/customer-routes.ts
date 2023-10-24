@@ -1,6 +1,6 @@
 import express from "express";
 import { Authenticate } from "../middlewares/common-auth";
-import { CustomerLogin, CustomerProfile, CustomerSignUp, CustomerVerification, UpdateCustomerProfile, getOtp } from "../controllers/customer-controller";
+import { CreateOrder, CustomerLogin, CustomerProfile, CustomerSignUp, CustomerVerification, GetOrderById, GetOrders, UpdateCustomerProfile, getOtp } from "../controllers/customer-controller";
 
 const customerRouter = express.Router();
 
@@ -13,5 +13,9 @@ customerRouter.patch("/verify", CustomerVerification);
 customerRouter.patch("/otp", getOtp);
 customerRouter.get("/profile", CustomerProfile);
 customerRouter.patch("/update-profile", UpdateCustomerProfile);
+
+customerRouter.post("/create-order", CreateOrder);
+customerRouter.get("/orders", GetOrders);
+customerRouter.get("/order/:id", GetOrderById);
 
 export { customerRouter };

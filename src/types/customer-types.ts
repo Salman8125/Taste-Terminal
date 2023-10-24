@@ -19,3 +19,8 @@ export interface UpdateCustomerInputs {
   lastName: string;
   address: string;
 }
+
+export interface CartInputs {
+  _id: string;
+  unit: number;
+}
