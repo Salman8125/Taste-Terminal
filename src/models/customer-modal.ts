@@ -13,8 +13,8 @@ interface customerInterface extends Document {
   otp_expiry: Date;
   lat: number;
   lng: number;
-  orders: [any];
-  cart: [any];
+  orders: any[];
+  cart: any[];
 }
 
 const customerSchema = new Schema(

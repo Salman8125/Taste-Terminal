@@ -249,6 +249,7 @@ export const CreateOrder = async (req: Request, res: Response, next: NextFunctio
 
     let totalPrice = 0.0;
     const cartItems = Array();
+    let vendorId;
 
     const foods = await Food.find()
       .where("_id")
@@ -262,6 +263,7 @@ export const CreateOrder = async (req: Request, res: Response, next: NextFunctio
     foods.map((food) => {
       cart.map(({ _id, unit }) => {
         if (food._id == _id) {
+          vendorId = food.vendorId;
           totalPrice = totalPrice + food.price * unit;
           cartItems.push({ food, unit });
         }
@@ -280,10 +282,17 @@ export const CreateOrder = async (req: Request, res: Response, next: NextFunctio
       paymentResponse: "",
       orderStatus: "pending",
       verified: false,
+      vendorId: vendorId,
+      remarks: "",
+      deliveryId: "",
+      appliedOffers: false,
+      offerId: null,
+      readyTime: null,
     });
 
     if (currentOrder) {
       customer.orders.push(currentOrder);
+      customer.cart = [] as any;
       await customer.save();
 
       return res.status(200).json(currentOrder);
@@ -382,6 +391,7 @@ export const AddItemsToCart = async (req: Request, res: Response, next: NextFunc
       cartItems.push({ food, unit });
     }
 
+    customer.cart = cartItems;
     await customer.save();
 
     return res.status(200).json(customer.cart);
@@ -396,21 +406,43 @@ export const GetItemsFormCart = async (req: Request, res: Response, next: NextFu
     const user = req.user;
 
     if (!user) {
-      return res.status(400).json("Un Authorized");
+      return res.status(400).json("Unauthorized");
     }
+
+    const customer = await Customer.findById(user._id).populate("cart.food");
+
+    if (!customer) {
+      return res.status(400).json("Customer Data not found");
+    }
+
+    const cart = customer.cart;
+
+    return res.status(200).json(cart);
   } catch (error) {
     console.log(error);
     return res.status(200).json("Internal Server Error");
   }
 };
 
-export const DeleteItemsFromCart = async (req: Request, res: Response, next: NextFunction) => {
+export const EmptyCart = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user = req.user;
 
     if (!user) {
       return res.status(400).json("Un Authorized");
     }
+
+    const customer = await Customer.findById(user._id).populate("cart.food");
+
+    if (!customer) {
+      return res.status(400).json("Customer Data not found");
+    }
+
+    customer.cart = [] as any[];
+
+    await customer.save();
+
+    return res.status(200).json(customer.cart);
   } catch (error) {
     console.log(error);
     return res.status(200).json("Internal Server Error");

@@ -7,7 +7,7 @@ import {
   CustomerProfile,
   CustomerSignUp,
   CustomerVerification,
-  DeleteItemsFromCart,
+  EmptyCart,
   GetItemsFormCart,
   GetOrderById,
   GetOrders,
@@ -33,6 +33,6 @@ customerRouter.get("/order/:id", GetOrderById);
 
 customerRouter.post("/cart-additem", AddItemsToCart);
 customerRouter.get("/cart-getitem", GetItemsFormCart);
-customerRouter.delete("/cart-deleteitem", DeleteItemsFromCart);
+customerRouter.delete("/empty-cart", EmptyCart);
 
 export { customerRouter };

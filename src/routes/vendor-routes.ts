@@ -1,5 +1,16 @@
 import express from "express";
-import { Addfood, getFoods, getVendorProfile, login, updateVendorCoverImage, updateVendorProfile, updateVendorService } from "../controllers/vendor-controller";
+import {
+  Addfood,
+  GetCurrentOrders,
+  GetOrderDetails,
+  ProcessOrder,
+  getFoods,
+  getVendorProfile,
+  login,
+  updateVendorCoverImage,
+  updateVendorProfile,
+  updateVendorService,
+} from "../controllers/vendor-controller";
 import { Authenticate } from "../middlewares/common-auth";
 import multer from "multer";
 
@@ -27,5 +38,9 @@ vendorRouter.patch("/coverimages", images, updateVendorCoverImage);
 
 vendorRouter.patch("/food", images, Addfood);
 vendorRouter.get("/foods", getFoods);
+
+vendorRouter.get("/orders", GetCurrentOrders);
+vendorRouter.get("/order/:id", GetOrderDetails);
+vendorRouter.patch("/order/:id/process", ProcessOrder);
 
 export { vendorRouter };

@@ -4,6 +4,7 @@ import { Vendor } from "../models/vendor-modal";
 import { GenerateSignature, ValidatePassword } from "../utility/encrypt-data";
 import { AddfoodsInput } from "../types/food-types";
 import { Food } from "../models/food-modal";
+import { Order } from "../models/order-modal";
 
 export const login = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -203,6 +204,97 @@ export const getFoods = async (req: Request, res: Response, next: NextFunction) 
     }
 
     return res.status(200).json(foods);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json("Internal Server error");
+  }
+};
+
+export const GetCurrentOrders = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const user = req.user;
+
+    if (!user) {
+      return res.status(400).json("Un Authorised");
+    }
+
+    const order = await Order.find({ vendorId: user._id }).populate("items.food");
+
+    if (!order) {
+      return res.status(400).json("No Orders Found");
+    }
+
+    return res.status(200).json(order);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json("Internal Server error");
+  }
+};
+
+export const GetOrderDetails = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const user = req.user;
+
+    if (!user) {
+      return res.status(400).json("Unauthorised");
+    }
+
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(200).json("Id is Required");
+    }
+
+    const order = await Order.findById(id).populate("items.food");
+
+    if (!order) {
+      return res.status(200).json("Order Not Found");
+    }
+
+    return res.status(200).json("");
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json("Internal Server error");
+  }
+};
+
+export const ProcessOrder = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const user = req.user;
+
+    if (!user) {
+      return res.status(400).json("Un Authorised");
+    }
+
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(200).json("Id is Required");
+    }
+
+    const { status, remarks, time } = req.body;
+
+    if (!status || !remarks || !time) {
+      return res.status(400).json("Missing Fields");
+    }
+
+    const order = await Order.findById(id).populate("items.food");
+
+    if (!order) {
+      return res.status(200).json("Order Not Found");
+    }
+
+    order.orderStatus = status;
+    order.remarks = remarks;
+    order.readyTime = time;
+
+    const orderResult = await order.save();
+
+    if (!orderResult) {
+      return res.status(400).json("Unable to process order");
+    }
+
+    return res.status(200).json(orderResult);
   } catch (error) {
     console.log(error);
     return res.status(500).json("Internal Server error");
