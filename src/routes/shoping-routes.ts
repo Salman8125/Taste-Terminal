@@ -9,4 +9,7 @@ shopingRouter.get("/foods-30-min/:pincode", FastDeliveryFoods);
 shopingRouter.get("/searchfoods/:pincode", SearchFoods);
 shopingRouter.get("/find-resturant/:resturantId", ResturantById);
 
+shopingRouter.get("offers/:pincode");
+
+
 export { shopingRouter };

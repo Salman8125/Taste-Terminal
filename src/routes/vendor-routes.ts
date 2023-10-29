@@ -1,7 +1,11 @@
 import express from "express";
 import {
+  AddOffer,
   Addfood,
+  EditOffer,
   GetCurrentOrders,
+  GetOfferById,
+  GetOffers,
   GetOrderDetails,
   ProcessOrder,
   getFoods,
@@ -42,5 +46,10 @@ vendorRouter.get("/foods", getFoods);
 vendorRouter.get("/orders", GetCurrentOrders);
 vendorRouter.get("/order/:id", GetOrderDetails);
 vendorRouter.patch("/order/:id/process", ProcessOrder);
+
+vendorRouter.post("/add-offer", AddOffer);
+vendorRouter.get("/offers", GetOffers);
+vendorRouter.get("/offer/:id", GetOfferById);
+vendorRouter.patch("offer/:id", EditOffer);
 
 export { vendorRouter };

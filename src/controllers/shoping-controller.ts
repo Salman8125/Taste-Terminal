@@ -113,3 +113,21 @@ export const ResturantById = async (req: Request, res: Response, next: NextFunct
     return res.status(500).json("Internal Server Error");
   }
 };
+
+export const ShoppingGetOffers = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const pincode = req.params.pincode;
+
+    if (!pincode) {
+      return res.status(400).json("Pincode is Requirreed");
+    }
+
+    
+
+
+    return res.status(200).json("YO");
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json("Internal Server Error");
+  }
+};

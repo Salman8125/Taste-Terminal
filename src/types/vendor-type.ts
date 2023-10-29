@@ -27,3 +27,20 @@ export interface VendorUpdateProfileInput {
   address: string;
   phone: string;
 }
+
+export interface VendorOfferInputs {
+  offerType: string;
+  vendors: [any];
+  title: string;
+  description: string;
+  minValue: number;
+  offerAmount: number;
+  startValidity: Date;
+  endValidity: Date;
+  promoCode: string;
+  promoType: string;
+  bank: [any];
+  bins: [any];
+  pincode: string;
+  isActive: string;
+}
