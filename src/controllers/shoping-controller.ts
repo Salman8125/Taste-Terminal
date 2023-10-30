@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { Vendor } from "../models/vendor-modal";
 import { foodDoc } from "../models/food-modal";
+import { Offer } from "../models/offer-model";
 
 export const FoodAvaliblity = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -122,10 +123,13 @@ export const ShoppingGetOffers = async (req: Request, res: Response, next: NextF
       return res.status(400).json("Pincode is Requirreed");
     }
 
-    
+    const Offers = await Offer.find({ pincode: pincode });
 
+    if (!Offer) {
+      return res.status(400).json("Offer Not Found");
+    }
 
-    return res.status(200).json("YO");
+    return res.status(200).json(Offer);
   } catch (error) {
     console.log(error);
     return res.status(500).json("Internal Server Error");

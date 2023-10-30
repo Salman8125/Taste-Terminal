@@ -11,5 +11,4 @@ shopingRouter.get("/find-resturant/:resturantId", ResturantById);
 
 shopingRouter.get("offers/:pincode");
 
-
 export { shopingRouter };
