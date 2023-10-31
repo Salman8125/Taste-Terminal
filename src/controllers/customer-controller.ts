@@ -5,6 +5,7 @@ import { GeneratePassword, GenerateSalt, GenerateSignature, ValidatePassword } f
 import { GenerateOtp, onRequestOTP } from "../utility/notification-utility";
 import { Order } from "../models/order-modal";
 import { Food } from "../models/food-modal";
+import { Offer } from "../models/offer-model";
 
 export const CustomerSignUp = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -443,6 +444,47 @@ export const EmptyCart = async (req: Request, res: Response, next: NextFunction)
     await customer.save();
 
     return res.status(200).json(customer.cart);
+  } catch (error) {
+    console.log(error);
+    return res.status(200).json("Internal Server Error");
+  }
+};
+
+export const VerifyOffer = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const user = req.user;
+
+    if (!user) {
+      return res.status(400).json("Un Authorized");
+    }
+
+    const customer = await Customer.findById(user._id).populate("cart.food");
+
+    if (!customer) {
+      return res.status(400).json("Customer Data not found");
+    }
+
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json("Offer Id is required");
+    }
+
+    const offer = await Offer.findById(id);
+
+    if (!offer) {
+      return res.status(400).json("Offer not found");
+    }
+
+    if (offer.promoType === "USER") {
+      // TODO Only Applicable once per User
+    }
+
+    if (offer.isActive) {
+      return res.status(200).json({ message: "Offer is Valid", offer: offer });
+    }
+
+    return res.status(400).json("Unable to verify offer");
   } catch (error) {
     console.log(error);
     return res.status(200).json("Internal Server Error");

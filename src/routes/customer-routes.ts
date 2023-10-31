@@ -12,6 +12,7 @@ import {
   GetOrderById,
   GetOrders,
   UpdateCustomerProfile,
+  VerifyOffer,
   getOtp,
 } from "../controllers/customer-controller";
 
@@ -34,5 +35,7 @@ customerRouter.get("/order/:id", GetOrderById);
 customerRouter.post("/cart-additem", AddItemsToCart);
 customerRouter.get("/cart-getitem", GetItemsFormCart);
 customerRouter.delete("/empty-cart", EmptyCart);
+
+customerRouter.get("/offer/verify/:id", VerifyOffer);
 
 export { customerRouter };
