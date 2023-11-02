@@ -24,3 +24,9 @@ export interface CartInputs {
   _id: string;
   unit: number;
 }
+
+export interface CreateOrderIputs {
+  transactionId: String;
+  amount: Number;
+  items: CartInputs[];
+}

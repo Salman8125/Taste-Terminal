@@ -4,14 +4,13 @@ interface OrderInterface extends Document {
   verified: boolean;
   vendorId: string;
   totalPrice: number;
+  paidAmount: number;
   items: any[];
   orderDate: Date;
   paymentMethod: string;
-  paymentResponce: string;
   orderStatus: string;
   remarks: string;
   deliveryId: string;
-  appliedOffers: string;
   offerId: string;
   readyTime: string;
 }
@@ -19,6 +18,7 @@ interface OrderInterface extends Document {
 const orderSchema = new Schema(
   {
     totalPrice: { type: Number, required: true },
+    paidAmount: { type: Number, required: true },
     verified: { type: Boolean, required: true },
     vendorId: { type: String, required: true },
     items: [
@@ -36,7 +36,6 @@ const orderSchema = new Schema(
     orderStatus: { type: String },
     remarks: { type: String },
     deliveryId: { type: String },
-    appliedOffers: { type: Boolean },
     offerId: { type: String },
     readyTime: { type: String },
   },

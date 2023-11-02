@@ -1,9 +1,9 @@
 import mongooose, { Schema, Document } from "mongoose";
 
 export interface TransactionDocs extends Document {
-  customer: string;
-  vendor: string;
-  order: string;
+  customerId: string;
+  vendorId: string;
+  orderId: string;
   orderValue: number;
   offerUsed: string;
   status: string;
@@ -13,9 +13,9 @@ export interface TransactionDocs extends Document {
 
 const TransactionSchema = new Schema(
   {
-    customer: String,
-    vendor: String,
-    order: String,
+    customerId: String,
+    vendorId: String,
+    orderId: String,
     orderValue: Number,
     offerUsed: String,
     status: String,
@@ -28,7 +28,7 @@ const TransactionSchema = new Schema(
       transform(doc, ret) {
         delete ret.__v;
         delete ret.createdAt;
-        delete ret.updateAt;
+        delete ret.updatedAt;
       },
     },
   }

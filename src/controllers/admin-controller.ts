@@ -3,6 +3,7 @@ import { NextFunction, Request, Response } from "express";
 import { CreateVendorInput } from "../types/vendor-type";
 import { Vendor } from "../models/vendor-modal";
 import { GeneratePassword, GenerateSalt } from "../utility/encrypt-data";
+import { Transaction } from "../models/transaction-modal";
 
 export const createVendor = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -31,6 +32,8 @@ export const createVendor = async (req: Request, res: Response, next: NextFuncti
       serviceAvailable: false,
       coverImages: [],
       foods: [],
+      lat: 0,
+      lng: 0,
     });
 
     return res.status(201).json(vendor);
@@ -70,6 +73,42 @@ export const getVendorById = async (req: Request, res: Response, next: NextFunct
     res.status(200).json(id);
   } catch (error) {
     console.log("GET_VENDORS_BY_ID", error);
+    return res.status(500).json("Internal Server Error");
+  }
+};
+
+export const GetTransaction = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const transaction = await Transaction.find();
+
+    if (!transaction) {
+      return res.status(400).json("No transaction exists");
+    }
+
+    return res.status(200).json(transaction);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json("Internal Server Error");
+  }
+};
+
+export const GetTransactionById = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json("Id is Required");
+    }
+
+    const transaction = await Transaction.findById(id);
+
+    if (!transaction) {
+      return res.status(400).json("No transaction exists");
+    }
+
+    return res.status(200).json(transaction);
+  } catch (error) {
+    console.log(error);
     return res.status(500).json("Internal Server Error");
   }
 };

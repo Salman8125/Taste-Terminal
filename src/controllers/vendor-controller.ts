@@ -122,6 +122,8 @@ export const updateVendorService = async (req: Request, res: Response, next: Nex
   try {
     const user = req.user;
 
+    const { lat, lng } = req.body;
+
     if (!user) {
       return res.status(400).json("Un Authorised");
     }

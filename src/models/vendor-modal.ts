@@ -14,6 +14,8 @@ interface vendorInterface extends Document {
   coverImages: String[];
   rating: string;
   foods: any;
+  lat: number;
+  lng: number;
 }
 
 const vendorSchema = new Schema(
@@ -46,6 +48,8 @@ const vendorSchema = new Schema(
         ref: "food",
       },
     ],
+    lat: { type: Number },
+    lag: { type: Number },
   },
   {
     timestamps: true,

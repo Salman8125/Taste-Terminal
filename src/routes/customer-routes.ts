@@ -3,6 +3,7 @@ import { Authenticate } from "../middlewares/common-auth";
 import {
   AddItemsToCart,
   CreateOrder,
+  CreatePayment,
   CustomerLogin,
   CustomerProfile,
   CustomerSignUp,
@@ -37,5 +38,7 @@ customerRouter.get("/cart-getitem", GetItemsFormCart);
 customerRouter.delete("/empty-cart", EmptyCart);
 
 customerRouter.get("/offer/verify/:id", VerifyOffer);
+
+customerRouter.post("/create-payment", CreatePayment);
 
 export { customerRouter };

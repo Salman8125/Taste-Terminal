@@ -1,11 +1,12 @@
 import { NextFunction, Request, Response } from "express";
-import { CartInputs, CreateCustomerInput, CustomerLoginInputs, UpdateCustomerInputs } from "../types/customer-types";
+import { CartInputs, CreateCustomerInput, CreateOrderIputs, CustomerLoginInputs, UpdateCustomerInputs } from "../types/customer-types";
 import { Customer } from "../models/customer-modal";
 import { GeneratePassword, GenerateSalt, GenerateSignature, ValidatePassword } from "../utility/encrypt-data";
 import { GenerateOtp, onRequestOTP } from "../utility/notification-utility";
 import { Order } from "../models/order-modal";
 import { Food } from "../models/food-modal";
 import { Offer } from "../models/offer-model";
+import { Transaction } from "../models/transaction-modal";
 
 export const CustomerSignUp = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -228,6 +229,71 @@ export const UpdateCustomerProfile = async (req: Request, res: Response, next: N
   }
 };
 
+export const CreatePayment = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const customer = req.user;
+
+    if (!customer) {
+      return res.status(400).json("User Not Found!!");
+    }
+
+    const { amount, offerId, paymentMode } = req.body;
+
+    if (!paymentMode) {
+      return res.status(400).json("Missing Fields");
+    }
+
+    let payableAmount = Number(amount);
+
+    if (offerId) {
+      const appliedOffer = await Offer.findById(offerId);
+
+      if (appliedOffer) {
+        if (appliedOffer.isActive) {
+          payableAmount = payableAmount - appliedOffer.offerAmount;
+        }
+      }
+    }
+
+    // TODO API GATEWAY INTEGRATION
+
+    const transaction = await Transaction.create({
+      customerId: customer._id,
+      vendorId: "",
+      orderId: "",
+      status: "OPEN",
+      paymentMode: paymentMode,
+      offerUsed: offerId || "NA",
+      orderValue: payableAmount,
+      paymentResponse: "",
+    });
+
+    if (!transaction) {
+      return res.status(400).json({ status: "failed", transaction });
+    }
+
+    return res.status(200).json({ status: "confirmed", transaction });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json("Internal Server Error");
+  }
+};
+
+const VerifyTransaction = async (transactionId: String) => {
+  try {
+    const transaction = await Transaction.findById(transactionId);
+    if (transaction) {
+      if (transaction.status.toLowerCase() !== "failed") {
+        return { status: true, transaction };
+      }
+    }
+    return { status: false, transaction };
+  } catch (error) {
+    console.log(error);
+    return { status: false, message: " Transation Failed To Verify" };
+  }
+};
+
 export const CreateOrder = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user = req.user;
@@ -242,10 +308,20 @@ export const CreateOrder = async (req: Request, res: Response, next: NextFunctio
       return res.status(400).json("Un Authorized");
     }
 
-    const cart = <CartInputs[]>req.body;
+    const { transactionId, amount, items } = <CreateOrderIputs>req.body;
 
-    if (!cart || cart.length === 0) {
+    if (!transactionId || !amount) {
+      return res.status(200).json("Missing Fields");
+    }
+
+    if (!items || items.length === 0) {
       return res.status(400).json("Missing Inputs");
+    }
+
+    const { status, transaction } = await VerifyTransaction(transactionId);
+
+    if (!status) {
+      return res.status(400).json({ message: "Eroor Creating an Order" });
     }
 
     let totalPrice = 0.0;
@@ -254,7 +330,7 @@ export const CreateOrder = async (req: Request, res: Response, next: NextFunctio
 
     const foods = await Food.find()
       .where("_id")
-      .in(cart.map((item) => item._id))
+      .in(items.map((item) => item._id))
       .exec();
 
     if (!foods || foods.length === 0) {
@@ -262,7 +338,7 @@ export const CreateOrder = async (req: Request, res: Response, next: NextFunctio
     }
 
     foods.map((food) => {
-      cart.map(({ _id, unit }) => {
+      items.map(({ _id, unit }) => {
         if (food._id == _id) {
           vendorId = food.vendorId;
           totalPrice = totalPrice + food.price * unit;
@@ -275,25 +351,40 @@ export const CreateOrder = async (req: Request, res: Response, next: NextFunctio
       return res.status(400).json("Cart items missing");
     }
 
+    if (!vendorId) {
+      return res.status(400).json("Vendor Not Found");
+    }
+
+    if (!transaction) {
+      return res.status(400).json("Transaction Not Found");
+    }
+
     const currentOrder = await Order.create({
       totalPrice: totalPrice,
+      paidAmount: amount,
       items: cartItems,
       orderDate: new Date(),
-      paidThrough: "COD",
-      paymentResponse: "",
+      paidThrough: transaction.paymentMode,
       orderStatus: "pending",
       verified: false,
       vendorId: vendorId,
       remarks: "",
       deliveryId: "",
-      appliedOffers: false,
-      offerId: null,
+      offerId: transaction.offerUsed,
       readyTime: null,
     });
 
     if (currentOrder) {
       customer.orders.push(currentOrder);
       customer.cart = [] as any;
+
+      if (transaction) {
+        transaction.orderId = currentOrder._id;
+        transaction.vendorId = vendorId;
+        transaction.status = "CONFIRMED";
+        await transaction.save();
+      }
+
       await customer.save();
 
       return res.status(200).json(currentOrder);
