@@ -11,6 +11,7 @@ interface deliveryUserInterface extends Document {
   salt: string;
   lat: number;
   lng: number;
+  isAvailable: boolean;
 }
 
 const deliveryUserSchema = new Schema(
@@ -35,6 +36,7 @@ const deliveryUserSchema = new Schema(
     verified: { type: Boolean },
     lat: { type: Number },
     lng: { type: Number },
+    isAvailable: { type: Boolean, default: false },
   },
   {
     timestamps: true,
@@ -45,8 +47,6 @@ const deliveryUserSchema = new Schema(
         delete ret.updatedAt;
         delete ret.password;
         delete ret.salt;
-        delete ret.otp;
-        delete ret.otp_expiry;
       },
     },
   }
