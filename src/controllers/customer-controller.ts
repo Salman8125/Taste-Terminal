@@ -7,6 +7,7 @@ import { Order } from "../models/order-modal";
 import { Food } from "../models/food-modal";
 import { Offer } from "../models/offer-model";
 import { Transaction } from "../models/transaction-modal";
+import { Vendor } from "../models/vendor-modal";
 
 export const CustomerSignUp = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -279,6 +280,20 @@ export const CreatePayment = async (req: Request, res: Response, next: NextFunct
   }
 };
 
+const assignOrderForDelivery = async (vendorId: String, orderId: String) => {
+  try {
+    const vendor = await Vendor.findById(vendorId);
+
+    if (vendor) {
+      const areacode = vendor.pincode;
+      const vendorLat = vendor.lat;
+      const vendorLng = vendor.lng;
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 const VerifyTransaction = async (transactionId: String) => {
   try {
     const transaction = await Transaction.findById(transactionId);
@@ -386,6 +401,8 @@ export const CreateOrder = async (req: Request, res: Response, next: NextFunctio
       }
 
       await customer.save();
+
+      assignOrderForDelivery(vendorId, currentOrder._id);
 
       return res.status(200).json(currentOrder);
     }

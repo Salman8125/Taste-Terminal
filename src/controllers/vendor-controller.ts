@@ -134,6 +134,11 @@ export const updateVendorService = async (req: Request, res: Response, next: Nex
       return res.status(400).json("Vendor info not found");
     }
 
+    if (lat && lng) {
+      existingVendor.lat = lat;
+      existingVendor.lng = lng;
+    }
+
     existingVendor.serviceAvailable = !existingVendor.serviceAvailable;
 
     const savedVendor = await existingVendor.save();

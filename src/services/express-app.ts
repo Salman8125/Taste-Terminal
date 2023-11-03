@@ -5,6 +5,7 @@ import { adminRouter } from "../routes/admin-routes";
 import { vendorRouter } from "../routes/vendor-routes";
 import { shopingRouter } from "../routes/shoping-routes";
 import { customerRouter } from "../routes/customer-routes";
+import { deliverUserRouter } from "../routes/deliver-user-routes";
 
 const expressApp = async (app: Application) => {
   app.use(bodyParser.json());
@@ -15,6 +16,7 @@ const expressApp = async (app: Application) => {
   app.use("/vendor", vendorRouter);
   app.use("/shoping", shopingRouter);
   app.use("/customer", customerRouter);
+  app.use("/delivery", deliverUserRouter);
 
   return app;
 };
