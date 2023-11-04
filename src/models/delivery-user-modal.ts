@@ -8,6 +8,7 @@ interface deliveryUserInterface extends Document {
   phone: number;
   verified: boolean;
   password: string;
+  pincode: string;
   salt: string;
   lat: number;
   lng: number;
@@ -33,6 +34,7 @@ const deliveryUserSchema = new Schema(
     phone: { type: Number, required: true },
     password: { type: String, required: true },
     salt: { type: String, required: true },
+    pincode: { type: String, required: true },
     verified: { type: Boolean },
     lat: { type: Number },
     lng: { type: Number },
@@ -52,6 +54,6 @@ const deliveryUserSchema = new Schema(
   }
 );
 
-const DeliveryUser = mongoose.model<deliveryUserInterface>("customer", deliveryUserSchema);
+const DeliveryUser = mongoose.model<deliveryUserInterface>("deliveryUser", deliveryUserSchema);
 
 export { DeliveryUser };

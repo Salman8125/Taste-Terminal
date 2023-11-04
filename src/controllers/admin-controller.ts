@@ -4,6 +4,7 @@ import { CreateVendorInput } from "../types/vendor-type";
 import { Vendor } from "../models/vendor-modal";
 import { GeneratePassword, GenerateSalt } from "../utility/encrypt-data";
 import { Transaction } from "../models/transaction-modal";
+import { DeliveryUser } from "../models/delivery-user-modal";
 
 export const createVendor = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -107,6 +108,46 @@ export const GetTransactionById = async (req: Request, res: Response, next: Next
     }
 
     return res.status(200).json(transaction);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json("Internal Server Error");
+  }
+};
+
+export const GetDeliveryUsers = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const deliveryUsers = await DeliveryUser.find();
+
+    if (deliveryUsers.length === 0) {
+      return res.status(400).json("No transaction exists");
+    }
+
+    return res.status(200).json(deliveryUsers);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json("Internal Server Error");
+  }
+};
+
+export const DeliveryUserVerify = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json("Id is Required");
+    }
+
+    const deliveryUsers = await DeliveryUser.findById(id);
+
+    if (!deliveryUsers) {
+      return res.status(400).json("Delivery User Not Found");
+    }
+
+    deliveryUsers.verified = true;
+
+    const result = await deliveryUsers.save();
+
+    return res.status(200).json(result);
   } catch (error) {
     console.log(error);
     return res.status(500).json("Internal Server Error");

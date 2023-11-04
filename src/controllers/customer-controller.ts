@@ -8,6 +8,7 @@ import { Food } from "../models/food-modal";
 import { Offer } from "../models/offer-model";
 import { Transaction } from "../models/transaction-modal";
 import { Vendor } from "../models/vendor-modal";
+import { DeliveryUser } from "../models/delivery-user-modal";
 
 export const CustomerSignUp = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -284,10 +285,28 @@ const assignOrderForDelivery = async (vendorId: String, orderId: String) => {
   try {
     const vendor = await Vendor.findById(vendorId);
 
+    console.log("Vendor", vendor);
+
     if (vendor) {
-      const areacode = vendor.pincode;
+      const areaCode = vendor.pincode;
       const vendorLat = vendor.lat;
       const vendorLng = vendor.lng;
+
+      const order = await Order.findById(orderId);
+
+      console.log(order);
+
+      if (order) {
+        const deliveryUser = await DeliveryUser.find({ pincode: areaCode, isAvailable: true, verified: true });
+
+        if (deliveryUser) {
+          console.log("deliveryUser", deliveryUser);
+
+          order.deliveryId = deliveryUser[0]._id;
+
+          await order.save();
+        }
+      }
     }
   } catch (error) {
     console.log(error);
@@ -428,7 +447,7 @@ export const GetOrders = async (req: Request, res: Response, next: NextFunction)
       return res.status(400).json("No Data Found Of This User");
     }
 
-    return res.status(200).json(customer);
+    return res.status(200).json(customer.orders);
   } catch (error) {
     console.log(error);
     return res.status(200).json("Internal Server Error");
